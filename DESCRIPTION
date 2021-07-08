@@ -11,7 +11,14 @@ Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.1
 Imports: 
+    ggnetwork,
     ggplot2,
+    igraph,
     LaplacesDemon,
     R6,
+    reactable,
+    shiny,
+    shinydashboard,
     tibble
+Depends: 
+    R (>= 2.10)

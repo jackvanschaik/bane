@@ -2,7 +2,11 @@
 #' @title Bane Class
 #' @docType class
 #' @description R6 class to implement the BaNE model
-#' @field n Number of indepedent nodes
+#' @field indep independent variable names
+#' @field dep list of variables dependencies
+#' @field mu independent variable priors
+#' @field lm dependent variable priors
+#' @field n Number of independent nodes
 #' @field m Number of dependent nodes
 #' @field k Number of total nodes
 #' @field N Rows of data
@@ -22,6 +26,10 @@
 #' @export
 Bane <- R6::R6Class("Bane",
                 public = list(
+                    indep = NULL,
+                    dep = NULL,
+                    mu = NULL,
+                    lm = NULL,
                     n = NULL,
                     m = NULL,
                     k = NULL,
@@ -46,6 +54,10 @@ Bane <- R6::R6Class("Bane",
                     #' @return A new `Bane` object
                     initialize = function(indep, dep, mu, lm, data) {
                         # Initialize key model parameters
+                        self$indep <- indep
+                        self$dep <- dep
+                        self$mu <- mu
+                        self$lm <- lm
                         self$n <- length(indep)
                         self$m <- length(dep)
                         self$k <- self$m + self$n
@@ -71,7 +83,7 @@ Bane <- R6::R6Class("Bane",
                         alpha <- c()
                         beta <- c()
                         A <- matrix(0, nrow = self$m, ncol = self$n)
-                        B <- matrix(0, nrow = self$m, ncol = self$n)
+                        B <- matrix(0, nrow = self$m, ncol = self$m)
                         M <- matrix(0, nrow = self$k, ncol = self$k + 1)
                         colnames(M) <- c("intercept", self$all_conds)
                         rownames(M) <- self$all_conds
@@ -227,6 +239,24 @@ Bane <- R6::R6Class("Bane",
                             ggplot2::theme_minimal()
 
                         list(subcohorts = comb_cnd, post_subs = post_subs, ggplot = gg)
+                    },
+                    #' @description Plot the phenotype topology
+                    #' @return A ggplot with phenotype topology
+                    plot_topology = function() {
+                        dep <- self$dep
+                        indep <- self$indep
+                        L <- lapply(seq(dep), function(i) data.frame(nout = dep[[i]], nin = names(dep)[i]))
+                        ig <- igraph::graph_from_edgelist(as.matrix(do.call(rbind, L)))
+                        ggn <- ggnetwork::ggnetwork(ig, layout = igraph::layout_as_tree(ig, root = indep, mode = "out"))
+                        ggn$dep <- ifelse(ggn$name %in% indep, "independent", "dependent")
+
+                        gg <- ggplot2::ggplot(ggn, ggplot2::aes(x = x, y = y, xend = xend, yend = yend, label = name)) +
+                            ggnetwork::geom_edges(color = "black", arrow = ggplot2::arrow(length = ggnetwork::unit(6, "pt"), type = "closed")) +
+                            ggnetwork::geom_nodes(ggplot2::aes(color = dep), size = 6) +
+                            ggnetwork::geom_nodelabel_repel(ggplot2::aes(color = dep), box.padding = ggnetwork::unit(1, "lines"), alpha = 0.75) +
+                            ggnetwork::theme_blank()
+
+                        gg
                     }
                 )
 )

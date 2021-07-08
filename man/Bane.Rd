@@ -13,7 +13,15 @@ Bane class
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{n}}{Number of indepedent nodes}
+\item{\code{indep}}{independent variable names}
+
+\item{\code{dep}}{list of variables dependencies}
+
+\item{\code{mu}}{independent variable priors}
+
+\item{\code{lm}}{dependent variable priors}
+
+\item{\code{n}}{Number of independent nodes}
 
 \item{\code{m}}{Number of dependent nodes}
 
@@ -56,6 +64,7 @@ Bane class
 \item \href{#method-run_chain}{\code{Bane$run_chain()}}
 \item \href{#method-maximum_likelihood}{\code{Bane$maximum_likelihood()}}
 \item \href{#method-post_subs}{\code{Bane$post_subs()}}
+\item \href{#method-plot_topology}{\code{Bane$plot_topology()}}
 \item \href{#method-clone}{\code{Bane$clone()}}
 }
 }
@@ -223,6 +232,19 @@ Posterior sampled subcohort proportions
 
 \subsection{Returns}{
 A list with subcohort, corresponding proportion draws, and a plot
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-plot_topology"></a>}}
+\if{latex}{\out{\hypertarget{method-plot_topology}{}}}
+\subsection{Method \code{plot_topology()}}{
+Plot the phenotype topology
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Bane$plot_topology()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+A ggplot with phenotype topology
 }
 }
 \if{html}{\out{<hr>}}

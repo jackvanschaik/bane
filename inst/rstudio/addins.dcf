@@ -1,0 +1,4 @@
+Name: BaNE Shiny Gadget
+Description: GUI Interface for Running BaNE models
+Binding: bane_shiny
+Interactive: true

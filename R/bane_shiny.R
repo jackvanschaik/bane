@@ -10,15 +10,18 @@
 #' @import shinydashboard
 #' @import reactable
 bane_shiny <- function(data) {
+    bane_ <- Bane$new()
+
     # UI #######################################################################
     ui <- dashboardPage(
         dashboardHeader(title = "BaNE Model Implementation"),
         dashboardSidebar(
             sidebarMenu(
-                menuItem("Model Specification", tabName = "model", icon = icon("th")),
-                menuItem("Prior Specification", tabName = "prior", icon = icon("th")),
+                menuItem("Model Specification", tabName = "model", icon = icon("code-branch")),
+                menuItem("Prior Specification", tabName = "prior", icon = icon("sliders-h")),
                 menuItem("Model Details", tabName = "details", icon = icon("th")),
-                menuItem("Posterior Sampling", tabName = "posterior", icon = icon("th"))
+                menuItem("Run Posterior Sampler", tabName = "posterior", icon = icon("calculator")),
+                menuItem("Posterior Intervals", tabName = "intervals", icon = icon("poll"))
             )
         ),
         dashboardBody(
@@ -50,7 +53,15 @@ bane_shiny <- function(data) {
                 ),
                 tabItem(tabName = "details",
                         fluidRow(
-                            box(width = 12)
+                            box(width = 12,
+                                h3("Model Details"),
+                                actionButton("mod_dtl", "Show Model Details")
+                            )
+                        ),
+                        fluidRow(
+                            box(width = 12,
+                                verbatimTextOutput("mod_out")
+                            )
                         )
 
                 ),
@@ -68,10 +79,27 @@ bane_shiny <- function(data) {
                         fluidRow(
                             box(width = 12,
                                 h3("Sampler Results"),
-                                plotOutput("hmc_res")
+                                h4("Chain results"),
+                                verbatimTextOutput("hmc_res_1"),
+                                h4("Chain consort"),
+                                verbatimTextOutput("hmc_res_2")
                             )
                         )
 
+                ),
+                tabItem(tabName = "intervals",
+                        fluidRow(
+                            box(width = 12,
+                                h3("Posterior Intervals"),
+                                actionButton("int_show", "Show Intervals")
+                            )
+                        ),
+                        fluidRow(
+                            box(width = 12,
+                                reactableOutput("int_tbl_1"),
+                                plotOutput("int_plot")
+                            )
+                        )
                 )
             )
         )
@@ -90,7 +118,7 @@ bane_shiny <- function(data) {
                 names(dep) <- dep_names
                 mu <- rep(0.5, length(indep))
                 lm <- rep(0.5, length(dep))
-                bane_ <- Bane$new(indep, dep, mu, lm, data)
+                bane_$create_model(indep, dep, mu, lm, data)
                 output$top_plt <- renderPlot({bane_$plot_topology()})
             }, error = function(e) {
                 print("Unable to parse model specification:")
@@ -98,6 +126,15 @@ bane_shiny <- function(data) {
                 output$top_plt <- renderPlot({NULL})
             })
 
+        })
+
+        observeEvent(input$mod_dtl, {
+            tryCatch({
+                output$mod_out <- renderPrint({bane_$print()})
+            }, error = function(e) {
+                print("Failed to print model details: ")
+                print(e)
+            })
         })
 
         observeEvent(input$hmc_run, {
@@ -109,14 +146,32 @@ bane_shiny <- function(data) {
                     eps = input$hmc_eps,
                     L = input$hmc_leap
                 )
-                output$hmc_res <- renderPlot({bane_$post_subs()$ggplot})
+                output$hmc_res_1 <- renderPrint({print(bane_$ld)})
+                output$hmc_res_2 <- renderPrint({LaplacesDemon::Consort(bane_$ld)})
             }, error = function(e) {
                 print("Problem with sampler:")
                 print(e)
                 output$hmc_res <- renderPlot({NULL})
             })
         })
+
+        observeEvent(input$int_show, {
+            tryCatch({
+                post_subs <- bane_$post_subs()
+                output$int_plot <- renderPlot({post_subs$ggplot})
+                int_df <- dplyr::mutate_all(as.data.frame(cbind(
+                    post_subs$subcohorts,
+                    t(apply(post_subs$post_subs, 1, function(x) c(mean=mean(x), median = stats::median(x)))),
+                    t(apply(post_subs$post_subs, 1, stats::quantile, c(0.025, 0.975)))
+                )), round, 3)
+                output$int_tbl_1 <- renderReactable({reactable(int_df)})
+            }, error = function(e) {
+                print("Error creating confidence intervals, has the sampler been run?")
+                print(e)
+            })
+        })
     }
 
-    shiny::runGadget(ui, server, viewer = shiny::dialogViewer("BaNE", width = 800))
+    shiny::runGadget(ui, server, viewer = shiny::browserViewer())
 }
+

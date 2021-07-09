@@ -56,7 +56,8 @@ Bane class
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-new}{\code{Bane$new()}}
+\item \href{#method-intialize}{\code{Bane$intialize()}}
+\item \href{#method-create_model}{\code{Bane$create_model()}}
 \item \href{#method-params_to_mat}{\code{Bane$params_to_mat()}}
 \item \href{#method-LLX}{\code{Bane$LLX()}}
 \item \href{#method-LPR}{\code{Bane$LPR()}}
@@ -65,16 +66,30 @@ Bane class
 \item \href{#method-maximum_likelihood}{\code{Bane$maximum_likelihood()}}
 \item \href{#method-post_subs}{\code{Bane$post_subs()}}
 \item \href{#method-plot_topology}{\code{Bane$plot_topology()}}
+\item \href{#method-print}{\code{Bane$print()}}
 \item \href{#method-clone}{\code{Bane$clone()}}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
-\subsection{Method \code{new()}}{
-Create a new BaNE object
+\if{html}{\out{<a id="method-intialize"></a>}}
+\if{latex}{\out{\hypertarget{method-intialize}{}}}
+\subsection{Method \code{intialize()}}{
+Intialize the R6 object
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Bane$new(indep, dep, mu, lm, data)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Bane$intialize()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+A new `Bane object`
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-create_model"></a>}}
+\if{latex}{\out{\hypertarget{method-create_model}{}}}
+\subsection{Method \code{create_model()}}{
+Create a new BaNE model
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Bane$create_model(indep, dep, mu, lm, data)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -93,7 +108,7 @@ Create a new BaNE object
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-A new `Bane` object
+Updates the object with side effects
 }
 }
 \if{html}{\out{<hr>}}
@@ -245,6 +260,19 @@ Plot the phenotype topology
 
 \subsection{Returns}{
 A ggplot with phenotype topology
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-print"></a>}}
+\if{latex}{\out{\hypertarget{method-print}{}}}
+\subsection{Method \code{print()}}{
+Print details about the object
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Bane$print()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+Side effects -- printing
 }
 }
 \if{html}{\out{<hr>}}

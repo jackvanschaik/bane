@@ -45,14 +45,19 @@ Bane <- R6::R6Class("Bane",
                     Sig_inv = NULL,
                     LD_Data = NULL,
                     ld = NULL,
-                    #' @description Create a new BaNE object
+                    #' @description Intialize the R6 object
+                    #' @return A new `Bane object`
+                    intialize = function() {
+
+                    },
+                    #' @description Create a new BaNE model
                     #' @param indep A character vector of independent variable names.
                     #' @param dep A named list of dependent variables with their dependencies. List names are the dependent variable names and list elements are the corresponding vector of dependency names.
                     #' @param mu Prior proportions for independent variables.
                     #' @param lm Prior baseline proportions for dependent variables.
                     #' @param data A dataframe whose columns are referenced by dep and indep
-                    #' @return A new `Bane` object
-                    initialize = function(indep, dep, mu, lm, data) {
+                    #' @return Updates the object with side effects
+                    create_model = function(indep, dep, mu, lm, data) {
                         # Initialize key model parameters
                         self$indep <- indep
                         self$dep <- dep
@@ -257,6 +262,34 @@ Bane <- R6::R6Class("Bane",
                             ggnetwork::theme_blank()
 
                         gg
+                    },
+                    #' @description Print details about the object
+                    #' @return Side effects -- printing
+                    print = function() {
+                        print("Independent conditions: ")
+                        print(self$indep)
+                        print("Dependent conditions:" )
+                        print(self$dep)
+                        print("Prior means for independent conditions: ")
+                        print(self$mu)
+                        print("Prior means for dependent conditions: ")
+                        print(self$lm)
+                        print("Total number of conditions: ")
+                        print(self$k)
+                        print("Sample size: ")
+                        print(self$N)
+                        print("Data preview: ")
+                        print(head(self$data))
+                        print("Parameter names: ")
+                        print(self$param_names)
+                        print("Number of parameters: ")
+                        print(self$J)
+                        print("Design Matrix: ")
+                        print(self$M)
+                        print("Prior mean: ")
+                        print(self$mu_pr)
+                        print("Prior precision matrix: ")
+                        print(self$Sig_inv)
                     }
                 )
 )

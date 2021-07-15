@@ -47,7 +47,31 @@ bane_shiny <- function(data) {
                 ),
                 tabItem(tabName = "prior",
                         fluidRow(
-                            box(width = 12)
+                            box(width = 12,
+                                h3("Prior Parameters"),
+                                actionButton("pri_reset", "Reset Page")
+                            )
+                        ),
+                        fluidRow(
+                            box(width = 12,
+                                h3("Prior Input"),
+                                h4("Prior Mean"),
+                                uiOutput("pri_mean"),
+                                h4("Prior Covariance Matrix"),
+                                uiOutput("pri_cov"),
+                                actionButton("pri_use", "Use Parameters")
+                            )
+                        ),
+                        fluidRow(
+                            box(width = 12,
+                                h3("Beta to Normal Parameter Estimator"),
+                                textInput("beta_a", "Alpha"),
+                                textInput("beta_b", "Beta"),
+                                actionButton("beta_est", "Estimate"),
+                                htmlOutput("est_details"),
+                                plotOutput("plt_beta"),
+                                plotOutput("plt_norm")
+                            )
                         )
 
                 ),
@@ -126,6 +150,71 @@ bane_shiny <- function(data) {
                 output$top_plt <- renderPlot({NULL})
             })
 
+        })
+
+        observeEvent(input$pri_reset, {
+            tryCatch({
+                pr <- bane_$param_names
+                def_mean <- matrix(bane_$mu_pr, nrow = 1)
+                def_cov <- solve(bane_$Sig_inv)
+                colnames(def_mean) <- pr
+                rownames(def_cov) <- pr
+                colnames(def_cov) <- pr
+
+                output$pri_mean <- renderUI({
+                    shinyMatrix::matrixInput(
+                        "pri_mat_mean",
+                        value = def_mean,
+                        cols = list(n = length(p), names = TRUE),
+                        rows = list(n = 1),
+                        class = "numeric"
+                    )
+                })
+
+                output$pri_cov <- renderUI({
+                    shinyMatrix::matrixInput(
+                        "pri_mat_cov",
+                        value = def_cov,
+                        cols = list(n = length(p)),
+                        rows = list(n = length(p)),
+                        class = "numeric"
+                    )
+                })
+
+            }, error = function(e) {
+                print("Failed to reset page (has a model been created?)")
+                print(e)
+            })
+        })
+
+        observeEvent(input$pri_use, {
+            tryCatch({
+                bane_$mu_pr <- input$pri_mat_mean
+                bane_$Sig_inv <- solve(input$pri_mat_cov)
+            }, error = function(e) {
+                print("Failed to assign prior values")
+                print(e)
+            })
+        })
+
+        observeEvent(input$beta_est, {
+            tryCatch({
+                y <- estimate_normal(input$beta_a, input$beta_b)
+                g1 <- ggplot2::ggplot(y$sample, ggplot2::aes(x = beta)) +
+                    ggplot2::geom_density() +
+                    ggplot2::xlim(0, 1)
+                g2 <- ggplot2::ggplot(y$sample, ggplot2::aes(x = norm)) +
+                    ggplot2::geom_density()
+                output$est_details <- renderText({
+                    HTML(sprintf("<p>Beta: Mean %.3f, Variance %.3f</p><p> Normal: Mean %.3f, Variance %.3f</p>",
+                            y$mean_b, y$var_b, y$mean_n, y$var_n))
+                })
+                output$plt_beta <- renderPlot({g1})
+                output$plt_norm <- renderPlot({g2})
+            }, error = function(e) {
+                print("Estimation failed")
+                print(e)
+            })
         })
 
         observeEvent(input$mod_dtl, {

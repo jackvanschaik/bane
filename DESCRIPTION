@@ -20,6 +20,7 @@ Imports:
     reactable,
     shiny,
     shinydashboard,
+    shinyMatrix,
     stats,
     tibble,
     utils

@@ -3,6 +3,7 @@
 export(Bane)
 export(bane_example)
 export(bane_shiny)
+export(estimate_normal)
 import(reactable)
 import(shiny)
 import(shinydashboard)
